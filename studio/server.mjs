@@ -1,4 +1,5 @@
 import { createReadStream, existsSync, statSync } from "node:fs";
+import { timingSafeEqual } from "node:crypto";
 import { createServer as createHttpServer } from "node:http";
 import { extname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -47,6 +48,15 @@ async function readJsonBody(request, maxBytes = 4096) {
   return JSON.parse(body || "{}");
 }
 
+function hasDownloadAccess(request) {
+  const expected = process.env.SPOTDL_STUDIO_ACCESS_KEY || "";
+  const supplied = request.headers["x-studio-download-key"] || "";
+  if (!expected || typeof supplied !== "string") return false;
+  const expectedBuffer = Buffer.from(expected);
+  const suppliedBuffer = Buffer.from(supplied);
+  return expectedBuffer.length === suppliedBuffer.length && timingSafeEqual(expectedBuffer, suppliedBuffer);
+}
+
 function workerConfig() {
   const baseUrl = process.env.SPOTDL_WORKER_URL;
   const apiKey = process.env.SPOTDL_API_KEY;
@@ -66,8 +76,13 @@ async function proxySpotdl(request, response, pathname) {
     sendJson(response, 503, { error: error.message });
     return;
   }
-  if (!config) {
-    sendJson(response, 503, { error: "spotDL worker is not configured" });
+  if (!config || !process.env.SPOTDL_STUDIO_ACCESS_KEY) {
+    sendJson(response, 503, { error: "spotDL worker or Studio download access is not configured" });
+    return;
+  }
+
+  if (!hasDownloadAccess(request)) {
+    sendJson(response, 401, { error: "Enter the Studio download access key to use spotDL" });
     return;
   }
 
@@ -136,7 +151,7 @@ export function createServer() {
         ...status,
         downloads: {
           ...status.downloads,
-          spotdl: { state: process.env.SPOTDL_WORKER_URL && process.env.SPOTDL_API_KEY ? "configured" : "not-configured" }
+          spotdl: { state: process.env.SPOTDL_WORKER_URL && process.env.SPOTDL_API_KEY && process.env.SPOTDL_STUDIO_ACCESS_KEY ? "configured" : "not-configured" }
         }
       }));
       return;
