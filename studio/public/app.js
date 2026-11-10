@@ -321,6 +321,7 @@ if (spotdlForm) {
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || payload.detail || "Download request failed (" + response.status + ")");
       spotdlForm.reset();
+      if (spotdlAccessKey) spotdlAccessKey.value = accessKey;
       spotdlJob.textContent = "spotDL job " + payload.id + ": queued";
       pollSpotdlJob(payload.id);
     } catch (error) {
