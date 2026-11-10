@@ -46,6 +46,28 @@ try {
   });
   assert.equal(downloads.status, 503);
 
+  const originalWorkerUrl = process.env.SPOTDL_WORKER_URL;
+  const originalWorkerKey = process.env.SPOTDL_API_KEY;
+  const originalStudioKey = process.env.SPOTDL_STUDIO_ACCESS_KEY;
+  process.env.SPOTDL_WORKER_URL = "https://worker.example";
+  process.env.SPOTDL_API_KEY = "worker-secret";
+  process.env.SPOTDL_STUDIO_ACCESS_KEY = "studio-secret";
+  try {
+    const unauthorized = await fetch(`${base}/api/downloads`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: "https://open.spotify.com/track/0123456789012345678901" })
+    });
+    assert.equal(unauthorized.status, 401);
+  } finally {
+    if (originalWorkerUrl === undefined) delete process.env.SPOTDL_WORKER_URL;
+    else process.env.SPOTDL_WORKER_URL = originalWorkerUrl;
+    if (originalWorkerKey === undefined) delete process.env.SPOTDL_API_KEY;
+    else process.env.SPOTDL_API_KEY = originalWorkerKey;
+    if (originalStudioKey === undefined) delete process.env.SPOTDL_STUDIO_ACCESS_KEY;
+    else process.env.SPOTDL_STUDIO_ACCESS_KEY = originalStudioKey;
+  }
+
   const missing = await fetch(`${base}/not-found`);
   assert.equal(missing.status, 404);
 
