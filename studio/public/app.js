@@ -255,6 +255,8 @@ if (redirectUriLabel) redirectUriLabel.textContent = redirectUri();
 // Optional spotDL engine. Requests stay same-origin; the worker API key remains server-side.
 const spotdlStatus = document.querySelector("#spotdl-status");
 const spotdlForm = document.querySelector("#spotdl-form");
+const spotdlAccessKey = document.querySelector("#spotdl-access-key");
+const SPOTDL_ACCESS_SESSION_KEY = "spicetify-studio.download-access-key";
 const spotdlSubmit = document.querySelector("#spotdl-submit");
 const spotdlJob = document.querySelector("#spotdl-job");
 
@@ -283,7 +285,7 @@ async function pollSpotdlJob(jobId, attempts = 0) {
   }
   try {
     const response = await fetch("/api/downloads/" + encodeURIComponent(jobId), {
-      headers: { Accept: "application/json" },
+      headers: { Accept: "application/json", "X-Studio-Download-Key": sessionStorage.getItem(SPOTDL_ACCESS_SESSION_KEY) || "" },
       cache: "no-store"
     });
     const job = await response.json();
@@ -301,13 +303,19 @@ if (spotdlForm) {
   spotdlForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const url = new FormData(spotdlForm).get("url")?.toString().trim();
-    if (!url || !spotdlSubmit || !spotdlJob) return;
+    const accessKey = spotdlAccessKey?.value.trim() || sessionStorage.getItem(SPOTDL_ACCESS_SESSION_KEY) || "";
+    if (!url || !accessKey || !spotdlSubmit || !spotdlJob) {
+      if (spotdlJob) spotdlJob.textContent = "Enter the Studio download access key and a Spotify link.";
+      spotdlAccessKey?.focus();
+      return;
+    }
+    sessionStorage.setItem(SPOTDL_ACCESS_SESSION_KEY, accessKey);
     spotdlSubmit.disabled = true;
     spotdlJob.textContent = "Submitting to spotDL…";
     try {
       const response = await fetch("/api/downloads", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        headers: { "Content-Type": "application/json", Accept: "application/json", "X-Studio-Download-Key": accessKey },
         body: JSON.stringify({ url })
       });
       const payload = await response.json();
@@ -323,4 +331,5 @@ if (spotdlForm) {
   });
 }
 
+if (spotdlAccessKey) spotdlAccessKey.value = sessionStorage.getItem(SPOTDL_ACCESS_SESSION_KEY) || "";
 refreshSpotdlStatus();
