@@ -8,7 +8,7 @@ Repository: `destyntv/spicetify`
 - Keep the existing downloader and its queue intact. spotDL is an additional selectable engine, not a replacement.
 - Keep the existing Spicetify CLI and its root-level build/runtime untouched.
 - Deploy the spotDL worker as a separate Railway service from `spotdl-worker/`.
-- Keep the Studio UI in `studio/`; it calls the worker through a same-origin Studio server proxy. The worker API key stays in Railway variables and is never sent to browser JavaScript.
+- Keep the Studio UI in `studio/`; it calls the worker through a same-origin Studio server proxy. The worker API key stays in Railway variables and is never sent to browser JavaScript. The public Studio proxy also requires a separate owner-configured access key before it accepts download submissions.
 - Support two destinations as separate execution adapters:
   - **Railway:** isolated spotDL worker writes to its own Railway Volume mounted at `/music`.
   - **Windows PC:** local Windows agent runs spotDL under the signed-in user and writes to a user-selected local folder. Railway never writes to a Windows path.
@@ -34,8 +34,9 @@ The Windows destination is deliberately not implemented by the Railway worker. I
 2. Create a new Railway service rooted at `/spotdl-worker`; do not edit the existing service.
 3. Attach a Railway Volume to the new worker at `/music`. Do not use a Docker `VOLUME` instruction.
 4. Set `SPOTDL_API_KEY` on the worker and Studio services to the same long random secret.
-5. Set `SPOTDL_WORKER_URL` on Studio to the worker's HTTPS URL.
-6. Verify worker `/health`, authenticated job submission, status polling, and file creation on the new volume before enabling the feature for normal use.
+5. Set a separate `SPOTDL_STUDIO_ACCESS_KEY` on Studio; users enter this in the Studio download form. The browser stores it only in session storage.
+6. Set `SPOTDL_WORKER_URL` on Studio to the worker HTTPS URL.
+7. Verify worker `/health`, authenticated job submission, unauthorized-request rejection, status polling, and file creation on the new volume before enabling the feature for normal use.
 
 ## Rollback
 
