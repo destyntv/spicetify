@@ -1,0 +1,39 @@
+name: Studio CI
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "studio/**"
+      - ".github/workflows/studio-ci.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "studio/**"
+      - ".github/workflows/studio-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  studio:
+    name: Studio checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: studio
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install
+        run: npm install
+      - name: Syntax checks
+        run: npm run check
+      - name: Smoke tests
+        run: npm test

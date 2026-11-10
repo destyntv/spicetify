@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101014">
+  <meta name="description" content="Spicetify Studio — manage your local Spotify customization workspace.">
+  <title>Spicetify Studio</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="/" aria-label="Spicetify Studio home">
+        <span class="brand-mark">S</span>
+        <span><strong>spicetify</strong><small>STUDIO</small></span>
+      </a>
+      <div class="nav-label">WORKSPACE</div>
+      <nav aria-label="Main navigation">
+        <a class="nav-item active" href="#overview"><span>◫</span> Overview</a>
+        <a class="nav-item" href="#themes"><span>◈</span> Themes <em>soon</em></a>
+        <a class="nav-item" href="#extensions"><span>⌘</span> Extensions <em>soon</em></a>
+        <a class="nav-item" href="#players"><span>♫</span> Players</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="mini-status"><i></i><span>Studio service online</span></div>
+        <div class="version">STUDIO PREVIEW <b>0.1.0</b></div>
+      </div>
+    </aside>
+
+    <main id="overview" class="main-content">
+      <header class="topbar">
+        <div class="breadcrumb">Workspace <span>/</span> Overview</div>
+        <div class="topbar-right"><button class="text-button" id="refresh-status" type="button">Refresh status</button><span class="live-dot"></span><span>LOCAL-FIRST WORKSPACE</span><div class="avatar">S</div></div>
+      </header>
+
+      <section class="hero">
+        <div class="eyebrow"><span class="spark">✦</span> YOUR MUSIC, YOUR WAY</div>
+        <h1>Make Spotify<br><span>feel like yours.</span></h1>
+        <p>One workspace for your themes, extensions, and player connections. Your desktop setup stays on your Windows machine.</p>
+        <div class="hero-actions"><a class="primary-button" href="#connections">View connections <span>↗</span></a><span class="hero-note">Desktop control stays local and private.</span></div>
+        <div class="hero-orbit orbit-a"></div><div class="hero-orbit orbit-b"></div><div class="hero-core">♫</div>
+      </section>
+
+      <section id="connections" class="section">
+        <div class="section-heading"><div><div class="eyebrow">CONNECTIONS</div><h2>Your player setup</h2></div><span class="section-meta">2 PLAYER SURFACES</span></div>
+        <div class="connection-grid" id="players">
+          <article class="connection-card desktop-card">
+            <div class="card-top"><span class="product-icon">▣</span><span class="status-pill pending"><i></i><span class="status-label">Agent not paired</span></span></div>
+            <div class="card-kicker">WINDOWS INTEGRATION</div><h3>Spotify Desktop</h3>
+            <p>Connect your Windows agent to discover your local Spicetify installation and manage desktop customization.</p>
+            <div class="card-footer"><span class="muted">Runs on your PC</span></div><div class="connection-actions"><button class="action-button secondary" id="pair-agent" type="button">Pair Windows agent</button></div>
+          </article>
+          <article class="connection-card web-card">
+            <div class="card-top"><span class="product-icon web-icon">◎</span><span class="status-pill neutral"><i></i><span class="status-label">Not connected</span></span></div>
+            <div class="card-kicker">BROWSER INTEGRATION</div><h3>Spotify Web Player</h3>
+            <p>A separate browser experience using supported web APIs. Desktop themes and extensions do not patch the web player.</p>
+            <div class="card-footer"><span class="muted">Browser-based · OAuth PKCE</span></div><div class="connection-actions"><button class="action-button" id="connect-spotify" type="button">Connect Spotify</button><button class="action-button secondary" id="disconnect-spotify" type="button" hidden>Disconnect</button><span class="profile-label" id="spotify-profile" hidden></span></div><div class="spotify-config" id="spotify-config" hidden><label for="spotify-client-id">Spotify Developer app Client ID</label><input id="spotify-client-id" type="text" autocomplete="off" spellcheck="false" placeholder="Paste your Client ID"><p>Register this exact redirect URI in your Spotify Developer Dashboard: <code id="redirect-uri"></code></p><button class="action-button secondary" id="save-spotify-config" type="button">Save Client ID</button></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section lower-grid">
+        <article class="feature-panel" id="themes">
+          <div class="feature-icon">◈</div><div class="eyebrow">PERSONALIZATION</div><h3>Your visual identity</h3>
+          <p>Explore themes and customize your desktop experience. The catalog interface is coming in a later milestone.</p>
+          <span class="feature-state">THEME LIBRARY · COMING SOON</span>
+        </article>
+        <article class="feature-panel" id="extensions">
+          <div class="feature-icon">⌘</div><div class="eyebrow">YOUR TOOLKIT</div><h3>Extensions & apps</h3>
+          <p>Keep track of your favorite extensions and custom apps in one place, with local installation handled by your agent.</p>
+          <span class="feature-state">EXTENSION LIBRARY · COMING SOON</span>
+        </article>
+      </section>
+
+      <footer><span>SPICETIFY STUDIO <b>0.1.0</b></span><span>Built with a local-first mindset <span class="footer-heart">✦</span></span></footer>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
