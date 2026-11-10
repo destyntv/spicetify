@@ -53,3 +53,7 @@ Deploy the worker separately from `spotdl-worker/`; see [spotdl-worker/README.md
 The Studio UI reports spotDL as not configured until both variables are present. When configured, users can submit Spotify track, album, playlist, and artist URLs and view worker job status. The worker's in-memory queue resets on restart; persistent job history and cancellation are later milestones.
 
 The Windows download destination remains a local-agent responsibility. Railway cannot write to the user's PC. The Windows agent must run spotDL locally under the signed-in Windows user and use a user-selected local folder; it must not expose a public download endpoint or arbitrary shell execution.
+
+- `SPOTDL_STUDIO_ACCESS_KEY`: a separate long random passphrase required by the Studio download form. The browser keeps it in session storage only; it is not the worker API key.
+
+The Studio proxy requires this access key before it forwards any download request. This protects the public Studio endpoint from anonymous queue submissions. Keep `SPOTDL_API_KEY` private to the Studio server and worker; never enter it into the browser form.
