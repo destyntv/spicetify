@@ -40,7 +40,7 @@ The Windows destination is deliberately not implemented by the Railway worker. I
 
 ## Rollback
 
-- Remove `SPOTDL_WORKER_URL` and `SPOTDL_API_KEY` from the Studio service to disable spotDL submission.
+- Remove `SPOTDL_WORKER_URL`, `SPOTDL_API_KEY`, and `SPOTDL_STUDIO_ACCESS_KEY` from the Studio service to disable spotDL submission.
 - Leave the existing downloader and its data/volume untouched.
 - The new worker service and its volume can be stopped independently. Do not delete its volume until downloaded files have been backed up or are no longer needed.
 
