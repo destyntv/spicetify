@@ -21,6 +21,8 @@ try {
   assert.equal(payload.players.web.state, "not-connected");
   assert.equal(payload.capabilities.remoteDesktopPatching, false);
   assert.equal(payload.capabilities.arbitraryCommandExecution, false);
+  assert.equal(payload.downloads.existing.state, "preserved");
+  assert.equal(payload.downloads.spotdl.state, "not-configured");
 
   const page = await fetch(base);
   assert.equal(page.status, 200);
@@ -29,12 +31,42 @@ try {
   assert.match(pageHtml, /id="connect-spotify"/);
   assert.match(pageHtml, /id="pair-agent"/);
   assert.match(pageHtml, /id="refresh-status"/);
+  assert.match(pageHtml, /id="spotdl-form"/);
 
   const clientScript = await fetch(`${base}/app.js`);
   assert.equal(clientScript.status, 200);
   const clientCode = await clientScript.text();
   assert.match(clientCode, /code_challenge_method: "S256"/);
   assert.match(clientCode, /Spotify sign-in could not be verified/);
+
+  const downloads = await fetch(`${base}/api/downloads`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url: "https://open.spotify.com/track/0123456789012345678901" })
+  });
+  assert.equal(downloads.status, 503);
+
+  const originalWorkerUrl = process.env.SPOTDL_WORKER_URL;
+  const originalWorkerKey = process.env.SPOTDL_API_KEY;
+  const originalStudioKey = process.env.SPOTDL_STUDIO_ACCESS_KEY;
+  process.env.SPOTDL_WORKER_URL = "https://worker.example";
+  process.env.SPOTDL_API_KEY = "worker-secret";
+  process.env.SPOTDL_STUDIO_ACCESS_KEY = "studio-secret";
+  try {
+    const unauthorized = await fetch(`${base}/api/downloads`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: "https://open.spotify.com/track/0123456789012345678901" })
+    });
+    assert.equal(unauthorized.status, 401);
+  } finally {
+    if (originalWorkerUrl === undefined) delete process.env.SPOTDL_WORKER_URL;
+    else process.env.SPOTDL_WORKER_URL = originalWorkerUrl;
+    if (originalWorkerKey === undefined) delete process.env.SPOTDL_API_KEY;
+    else process.env.SPOTDL_API_KEY = originalWorkerKey;
+    if (originalStudioKey === undefined) delete process.env.SPOTDL_STUDIO_ACCESS_KEY;
+    else process.env.SPOTDL_STUDIO_ACCESS_KEY = originalStudioKey;
+  }
 
   const missing = await fetch(`${base}/not-found`);
   assert.equal(missing.status, 404);

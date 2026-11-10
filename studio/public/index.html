@@ -24,6 +24,7 @@
         <a class="nav-item" href="#themes"><span>◈</span> Themes <em>soon</em></a>
         <a class="nav-item" href="#extensions"><span>⌘</span> Extensions <em>soon</em></a>
         <a class="nav-item" href="#players"><span>♫</span> Players</a>
+        <a class="nav-item" href="#downloads"><span>↓</span> Downloads</a>
       </nav>
       <div class="sidebar-bottom">
         <div class="mini-status"><i></i><span>Studio service online</span></div>
@@ -73,6 +74,31 @@
           <div class="feature-icon">⌘</div><div class="eyebrow">YOUR TOOLKIT</div><h3>Extensions & apps</h3>
           <p>Keep track of your favorite extensions and custom apps in one place, with local installation handled by your agent.</p>
           <span class="feature-state">EXTENSION LIBRARY · COMING SOON</span>
+        </article>
+      </section>
+
+      <section id="downloads" class="section downloads-section">
+        <div class="section-heading"><div><div class="eyebrow">DOWNLOAD ENGINES</div><h2>Music downloads</h2></div><span class="section-meta">SEPARATE + SPOTDL</span></div>
+        <article class="download-panel">
+          <div class="download-engine-row">
+            <div><div class="card-kicker">ENGINE 01</div><h3>Existing download service</h3><p>Kept separate and untouched by this integration; its current queue and storage are not changed.</p></div>
+            <span class="status-pill neutral"><i></i> Preserved</span>
+          </div>
+          <div class="download-engine-row spotdl-engine">
+            <div><div class="card-kicker">ENGINE 02</div><h3>spotDL</h3><p>Queue Spotify track, album, playlist, or artist links through the isolated Railway worker.</p></div>
+            <span class="status-pill pending" id="spotdl-status"><i></i><span class="status-label">Checking worker</span></span>
+          </div>
+          <form id="spotdl-form" class="download-form">
+            <label for="spotdl-access-key">Studio download access key</label>
+            <input id="spotdl-access-key" name="accessKey" type="password" autocomplete="current-password" placeholder="Enter the key configured by the Studio owner" required>
+            <label for="spotify-url">Spotify link</label>
+            <div class="download-input-row">
+              <input id="spotify-url" name="url" type="url" inputmode="url" autocomplete="url" placeholder="https://open.spotify.com/track/..." required>
+              <button type="submit" id="spotdl-submit">Add to spotDL queue</button>
+            </div>
+            <p class="form-hint">Only Spotify links are accepted. spotDL matches metadata to YouTube audio; download only content you are authorized to save.</p>
+          </form>
+          <div id="spotdl-job" class="job-status" role="status" aria-live="polite">No spotDL jobs submitted in this session.</div>
         </article>
       </section>
 
