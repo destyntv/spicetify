@@ -43,7 +43,7 @@ class SpotifyUrlTests(unittest.TestCase):
                 "download",
                 "https://open.spotify.com/track/0123456789012345678901",
                 "--output",
-                "/music",
+                "/music/",
             ],
         )
 
