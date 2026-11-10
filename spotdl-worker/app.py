@@ -50,7 +50,7 @@ def validate_spotify_url(value: str) -> str:
 
 def build_command(url: str, output_dir: Path = OUTPUT_DIR) -> list[str]:
     # Pass a fixed argument vector; never invoke a shell or accept user-supplied flags.
-    return ["spotdl", "download", url, "--output", str(output_dir)]
+    return ["spotdl", "download", url, "--output", str(output_dir).rstrip("/\\\\") + "/"]
 
 
 def require_api_key(authorization: str | None = Header(default=None)) -> None:
