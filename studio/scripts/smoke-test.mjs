@@ -24,7 +24,17 @@ try {
 
   const page = await fetch(base);
   assert.equal(page.status, 200);
-  assert.match(await page.text(), /Spicetify Studio/);
+  const pageHtml = await page.text();
+  assert.match(pageHtml, /Spicetify Studio/);
+  assert.match(pageHtml, /id="connect-spotify"/);
+  assert.match(pageHtml, /id="pair-agent"/);
+  assert.match(pageHtml, /id="refresh-status"/);
+
+  const clientScript = await fetch(`${base}/app.js`);
+  assert.equal(clientScript.status, 200);
+  const clientCode = await clientScript.text();
+  assert.match(clientCode, /code_challenge_method: "S256"/);
+  assert.match(clientCode, /Spotify sign-in could not be verified/);
 
   const missing = await fetch(`${base}/not-found`);
   assert.equal(missing.status, 404);
