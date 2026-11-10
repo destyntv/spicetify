@@ -20,7 +20,9 @@ try {
   assert.equal(payload.players.desktop.state, "awaiting-local-agent");
   assert.equal(payload.players.web.state, "not-connected");
   assert.equal(payload.capabilities.remoteDesktopPatching, false);
-  assert.equal(payload.capabilities.arbitraryCommandExecution, false);\n  assert.equal(payload.downloads.existing.state, "preserved");\n  assert.equal(payload.downloads.spotdl.state, "not-configured");
+  assert.equal(payload.capabilities.arbitraryCommandExecution, false);
+  assert.equal(payload.downloads.existing.state, "preserved");
+  assert.equal(payload.downloads.spotdl.state, "not-configured");
 
   const page = await fetch(base);
   assert.equal(page.status, 200);
@@ -28,7 +30,8 @@ try {
   assert.match(pageHtml, /Spicetify Studio/);
   assert.match(pageHtml, /id="connect-spotify"/);
   assert.match(pageHtml, /id="pair-agent"/);
-  assert.match(pageHtml, /id="refresh-status"/);\n  assert.match(pageHtml, /id="spotdl-form"/);
+  assert.match(pageHtml, /id="refresh-status"/);
+  assert.match(pageHtml, /id="spotdl-form"/);
 
   const clientScript = await fetch(`${base}/app.js`);
   assert.equal(clientScript.status, 200);
@@ -36,7 +39,14 @@ try {
   assert.match(clientCode, /code_challenge_method: "S256"/);
   assert.match(clientCode, /Spotify sign-in could not be verified/);
 
-  const downloads = await fetch(`${base}/api/downloads`, {\n    method: "POST",\n    headers: { "Content-Type": "application/json" },\n    body: JSON.stringify({ url: "https://open.spotify.com/track/0123456789012345678901" })\n  });\n  assert.equal(downloads.status, 503);\n\n  const missing = await fetch(`${base}/not-found`);
+  const downloads = await fetch(`${base}/api/downloads`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url: "https://open.spotify.com/track/0123456789012345678901" })
+  });
+  assert.equal(downloads.status, 503);
+
+  const missing = await fetch(`${base}/not-found`);
   assert.equal(missing.status, 404);
 
   console.log("Studio smoke tests passed.");
