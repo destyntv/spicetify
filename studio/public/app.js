@@ -250,3 +250,77 @@ if (redirectUriLabel) redirectUriLabel.textContent = redirectUri();
   }
   await refreshStatus();
 })();
+
+
+// Optional spotDL engine. Requests stay same-origin; the worker API key remains server-side.
+const spotdlStatus = document.querySelector("#spotdl-status");
+const spotdlForm = document.querySelector("#spotdl-form");
+const spotdlSubmit = document.querySelector("#spotdl-submit");
+const spotdlJob = document.querySelector("#spotdl-job");
+
+async function refreshSpotdlStatus() {
+  if (!spotdlStatus) return;
+  try {
+    const response = await fetch("/api/status", { headers: { Accept: "application/json" }, cache: "no-store" });
+    if (!response.ok) throw new Error("Studio status request failed (" + response.status + ")");
+    const data = await response.json();
+    const configured = data.downloads?.spotdl?.state === "configured";
+    const label = spotdlStatus.querySelector(".status-label");
+    if (label) label.textContent = configured ? "Ready" : "Not configured";
+    spotdlStatus.classList.toggle("ready", configured);
+    spotdlStatus.classList.toggle("pending", !configured);
+  } catch (error) {
+    const label = spotdlStatus.querySelector(".status-label");
+    if (label) label.textContent = "Status unavailable";
+    showMessage(error.message || "Could not check spotDL worker.", true);
+  }
+}
+
+async function pollSpotdlJob(jobId, attempts = 0) {
+  if (attempts >= 120) {
+    if (spotdlJob) spotdlJob.textContent = "Still processing. The worker continues independently; submit another status check later.";
+    return;
+  }
+  try {
+    const response = await fetch("/api/downloads/" + encodeURIComponent(jobId), {
+      headers: { Accept: "application/json" },
+      cache: "no-store"
+    });
+    const job = await response.json();
+    if (!response.ok) throw new Error(job.error || job.detail || "Job status request failed (" + response.status + ")");
+    if (spotdlJob) spotdlJob.textContent = "spotDL job " + job.id + ": " + job.status + (job.log ? "\n" + job.log : "");
+    if (job.status === "queued" || job.status === "running") {
+      window.setTimeout(() => pollSpotdlJob(jobId, attempts + 1), 3000);
+    }
+  } catch (error) {
+    if (spotdlJob) spotdlJob.textContent = "Could not read spotDL job status: " + error.message;
+  }
+}
+
+if (spotdlForm) {
+  spotdlForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const url = new FormData(spotdlForm).get("url")?.toString().trim();
+    if (!url || !spotdlSubmit || !spotdlJob) return;
+    spotdlSubmit.disabled = true;
+    spotdlJob.textContent = "Submitting to spotDL…";
+    try {
+      const response = await fetch("/api/downloads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ url })
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || payload.detail || "Download request failed (" + response.status + ")");
+      spotdlForm.reset();
+      spotdlJob.textContent = "spotDL job " + payload.id + ": queued";
+      pollSpotdlJob(payload.id);
+    } catch (error) {
+      spotdlJob.textContent = "Download could not be queued: " + error.message;
+    } finally {
+      spotdlSubmit.disabled = false;
+    }
+  });
+}
+
+refreshSpotdlStatus();
