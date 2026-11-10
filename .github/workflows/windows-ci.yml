@@ -1,0 +1,52 @@
+name: Windows CLI Smoke Test
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  windows-build:
+    name: Windows x64 build and smoke test
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Build Windows executable
+        run: go build -o spicetify.exe .
+
+      - name: Verify version command
+        shell: pwsh
+        run: |
+          $output = .\spicetify.exe --version
+          if ($LASTEXITCODE -ne 0) {
+            throw "spicetify --version failed with exit code $LASTEXITCODE"
+          }
+          if ([string]::IsNullOrWhiteSpace(($output | Out-String))) {
+            throw "spicetify --version returned no output"
+          }
+
+      - name: Verify help command
+        shell: pwsh
+        run: |
+          $output = .\spicetify.exe --help
+          if ($LASTEXITCODE -ne 0) {
+            throw "spicetify --help failed with exit code $LASTEXITCODE"
+          }
+          if ([string]::IsNullOrWhiteSpace(($output | Out-String))) {
+            throw "spicetify --help returned no output"
+          }
