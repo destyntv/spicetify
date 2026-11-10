@@ -20,13 +20,13 @@ try {
   assert.equal(payload.players.desktop.state, "awaiting-local-agent");
   assert.equal(payload.players.web.state, "not-connected");
   assert.equal(payload.capabilities.remoteDesktopPatching, false);
-  assert.equal(payload.capabilities.arbitraryCommandExecution, false);
+  assert.equal(payload.capabilities.arbitraryCommandExecution, false);\n  assert.equal(payload.downloads.existing.state, "preserved");\n  assert.equal(payload.downloads.spotdl.state, "not-configured");
 
   const page = await fetch(base);
   assert.equal(page.status, 200);
-  assert.match(await page.text(), /Spicetify Studio/);
+  const html = await page.text();\n  assert.match(html, /Spicetify Studio/);\n  assert.match(html, /spotDL/);
 
-  const missing = await fetch(`${base}/not-found`);
+  const downloads = await fetch(`${base}/api/downloads`, {\n    method: "POST",\n    headers: { "Content-Type": "application/json" },\n    body: JSON.stringify({ url: "https://open.spotify.com/track/0123456789012345678901" })\n  });\n  assert.equal(downloads.status, 503);\n\n  const missing = await fetch(`${base}/not-found`);
   assert.equal(missing.status, 404);
 
   console.log("Studio smoke tests passed.");
