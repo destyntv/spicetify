@@ -70,7 +70,7 @@ export function createServer() {
       "Content-Type": mimeTypes[extname(filePath)] ?? "application/octet-stream",
       "X-Content-Type-Options": "nosniff",
       "Referrer-Policy": "no-referrer",
-      "Content-Security-Policy": "default-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self' data:"
+      "Content-Security-Policy": "default-src 'self'; style-src 'self'; script-src 'self'; connect-src 'self' https://accounts.spotify.com https://api.spotify.com; img-src 'self' data:"
     });
     if (request.method === "HEAD") {
       response.end();
