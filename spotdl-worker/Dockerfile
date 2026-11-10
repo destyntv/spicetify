@@ -5,7 +5,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     SPOTDL_OUTPUT_DIR=/music
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      ca-certificates curl ffmpeg \
+      ca-certificates curl ffmpeg gosu \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -19,6 +19,5 @@ RUN useradd --create-home --uid 10001 worker \
     && mkdir -p /music \
     && chown -R worker:worker /app /music
 
-USER worker
 EXPOSE 8080
-CMD ["sh", "-c", "uvicorn app:app --host 0.0.0.0 --port ${PORT:-8080}"]
+CMD ["sh", "-c", "chown worker:worker /music && exec gosu worker uvicorn app:app --host 0.0.0.0 --port ${PORT:-8080}"]
