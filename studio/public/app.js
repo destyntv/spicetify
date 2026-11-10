@@ -237,6 +237,8 @@ document.querySelector("#save-spotify-config")?.addEventListener("click", () => 
 });
 
 if (clientIdInput) clientIdInput.value = localStorage.getItem(STORAGE.clientId) || "";
+const redirectUriLabel = document.querySelector("#redirect-uri");
+if (redirectUriLabel) redirectUriLabel.textContent = redirectUri();
 
 (async () => {
   try {
